@@ -1,3 +1,5 @@
+
+var localData=[]
 //display today date
 
 //  var todayDate = moment().format("dddd, MMMM Do")
@@ -9,6 +11,21 @@ function displayTime(){
     $("#todayDate").text(todayDate);
 }
 setInterval(displayTime, 1000);
+
+
+function renderFromLocal(){
+
+  var data = JSON.parse(localStorage.getItem("data"));
+  if (data !== null){
+    localData=data;
+   
+  }
+  else{
+    return
+  }
+}
+
+renderFromLocal()
 
 // date from local storage
 // var localData=[
@@ -29,7 +46,7 @@ setInterval(displayTime, 1000);
 //set class dependon the time
 
 
-var localData=[]
+
 
 
  var data=generateData(9,17)
@@ -75,12 +92,15 @@ function createElements(timetoDisplay,description,timeforCalculation){
         const timeP=document.createElement('p')
         timeP.innerHTML=timetoDisplay
     const div2 = document.createElement("div");
-        const txtArea=document.createElement("textarea");
+    const txtArea=document.createElement('textarea')
         txtArea.classList.add("textarea")
         txtArea.textContent=description
    const div3 = document.createElement("div");
         const saveP = document.createElement('p')
-        const ico = document.createElement('i')
+       const ico = document.createElement('i')
+             
+        ico.setAttribute('id',Math.floor(Math.random()*100));
+      
         ico.classList.add("fa" ,"fa-floppy-o")
         ico.setAttribute("style", "font-size: 30px; padding-top:10px");
    
@@ -116,11 +136,49 @@ function createElements(timetoDisplay,description,timeforCalculation){
         div1.appendChild(timeP)
         timeP.textContent=timetoDisplay
     parentDiv.appendChild(div2)
-        div2.appendChild(txtArea)
+         div2.appendChild(txtArea)
+     
     parentDiv.appendChild(div3)
             div3.appendChild(saveP)
             saveP.appendChild(ico)
+            ico.addEventListener('click',handleSumbit)
+      
+
 }
 
 
+function handleSumbit(event){
+  var btnClicked = $(event.target);
 
+  //get text area value
+   var description = btnClicked.parent('p').parent('div').parent('div')[0].children[1].children[0].value
+
+   //get time value
+   var initialTime = btnClicked.parent('p').parent('div').parent('div')[0].children[0].children[0].innerHTML
+   var date = moment().format('L');
+  //required format   DDate:'2021-12-21T09:00:00+11:00
+  var timeAndDate = moment(date + ' ' + initialTime).format();
+var obj=
+{
+  DDate:timeAndDate,
+  description:description
+
+}
+
+alertify.confirm('Day-Planner', 'Do you want to save changes?', ()=>
+{ 
+localData.push(obj);
+window.localStorage.setItem("data", JSON.stringify(localData));
+  alertify.success('Ok') 
+} , 
+()=>
+{
+   alertify.error('Cancel')
+   btnClicked.parent('p').parent('div').parent('div')[0].children[1].children[0].value=""
+  });
+
+
+
+
+ 
+}
